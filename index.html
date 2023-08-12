@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta http-equiv="Lang" content="hu">
+
+<title>Ki nevet a UNO lap generátor</title>
+
+<style>
+	
+	::selection, ::-moz-selection, ::-webkit-selection {
+		background: transparent;
+	}
+	
+	html, body{
+		margin: 0;
+		padding: 0;
+		height: 100%;
+		width: 100%;
+		overflow: hidden;
+		background: #000;
+	}
+	
+	#card{
+		position: absolute;
+		left: -50%;
+		top: 50%;
+		width: 300px;
+		height: 430px;
+		margin-left: -145px;
+		margin-top: -220px;
+		text-align: center;
+		line-height: 430px;
+		font-size: 200px;
+		color: #fff;
+		font-weight: bold;
+		font-family: Arial;
+		text-shadow: 0 0 5px rgba(0,0,0,0.5);
+		box-shadow: 0 0 0 1px #999, 0 0 0 10px #fff inset;
+		border: 8px solid #ccc;
+		visibility: hidden;
+		transition: all 1s; -moz-transition: all 1s; -webkit-transition: all 1s; -o-transition: all 1s;
+		-webkit-transform: rotate(270deg) scale(0);  /* Safari 3.1+, Chrome */
+		-moz-transform: rotate(270deg) scale(0);  /* Firefox 3.5+ */
+		-ms-transform: rotate(270deg) scale(0);  /* IE9+ */
+		-o-transform: rotate(270deg) scale(0);  /* Opera 10.50+ */
+		transform: rotate(270deg) scale(0);
+	}
+	
+	#card.active{
+		left: 50%;
+		visibility: visible;
+		opacity: 1;
+		-webkit-transform: rotate(360deg) scale(1);  /* Safari 3.1+, Chrome */
+		-moz-transform: rotate(360deg) scale(1);  /* Firefox 3.5+ */
+		-ms-transform: rotate(360deg) scale(1);  /* IE9+ */
+		-o-transform: rotate(360deg) scale(1);  /* Opera 10.50+ */
+		transform: rotate(360deg) scale(1);
+	}
+	
+	
+	
+</style>
+
+<script charset="utf-8" type="text/javascript" src="jquery.min.js"></script>
+
+<script type="text/javascript">
+	
+	var deck = {},
+	first = true;
+
+	$(document).ready(function(){
+		
+		var	colors = {
+				yellow : {
+					total: 10,
+					done: 0
+				},
+				green : {
+					total: 10,
+					done: 0
+				},
+				red : {
+					total: 10,
+					done: 0
+				},
+				blue: {
+					total: 10,
+					done: 0
+				},
+				draw2: {
+					total: 2,
+					done: 0
+				},
+				swap: {
+					total: 2,
+					done: 0
+				},
+				skip: {
+					total: 2,
+					done: 0
+				},
+				draw4: {
+					total: 1,
+					done: 0
+				}
+			},
+			specials = ['+2','+4','color','swap','skip'],
+			i = yi = gi = ri = bi = bli = 0;
+		
+		for(var color in colors){
+			
+			var num = 0;
+			
+			while(colors[color].done < colors[color].total){
+				
+				var id = color + colors[color].done;
+				
+				deck[id] = deck[id + '_2'] = {};
+
+				deck[id]['num'] = num;
+				deck[id]['color'] = color;
+				deck[id + '_2']['num'] = num;
+				deck[id + '_2']['color'] = color;
+				
+				num++;
+				colors[color].done++;
+				
+			}
+			
+			deck[color + '_d2'] = {}
+			deck[color + '_swap'] = {}
+			deck[color + '_skip'] = {}
+			deck[color + '_d2_2'] = {}
+			deck[color + '_swap_2'] = {}
+			deck[color + '_skip_2'] = {};
+			
+			deck[color + '_d2']['num'] = 'draw_two';
+			deck[color + '_d2']['color'] = color;
+			deck[color + '_d2_2']['num'] = 'draw_two';
+			deck[color + '_d2_2']['color'] = color;
+			
+			deck[color + '_swap']['num'] = 'swap';
+			deck[color + '_swap']['color'] = color;
+			deck[color + '_swap_2']['num'] = 'swap';
+			deck[color + '_swap_2']['color'] = color;
+			
+			deck[color + '_skip']['num'] = 'skip';
+			deck[color + '_skip']['color'] = color;
+			deck[color + '_skip_2']['num'] = 'skip';
+			deck[color + '_skip_2']['color'] = color;
+			
+		}
+		
+		console.log(deck);
+		
+		// Add black
+		
+		deck['choose_1'] = {};
+		deck['choose_2'] = {};
+		deck['choose_3'] = {};
+		deck['choose_4'] = {};
+		deck['draw4_1'] = {};
+		deck['draw4_2'] = {};
+		deck['draw4_3'] = {};
+		deck['draw4_4'] = {};
+		
+		for(var i = 1; i < 5; i++){
+			
+			deck['choose_' + i]['num'] = 'choose';
+			deck['choose_' + i]['color'] = 'black';
+			
+			deck['draw4_' + i]['num'] = 'draw_four';
+			deck['draw4_' + i]['color'] = 'black';
+			
+		}
+		
+		$('body').click(function(){
+			
+			$("#card").removeClass('active');
+			
+			setTimeout(function(){
+
+				if(objLength(deck) == 0){
+					alert('Reshuffling...');
+					window.location = '';
+					return false;
+				}
+				
+				var text = '';
+				
+				first = false;
+				
+				var cardName = pickRandomProperty(deck);
+				var card = deck[cardName];
+				
+				delete deck[cardName];
+				
+				switch(card.num){
+					case "swap" :
+						text = "&#167;";
+						break;
+					case "skip" :
+						text = "&#216;";
+						break;
+					case "draw_two" :
+						text = "+2";
+						break;
+					case "draw_four" :
+						text = "+4";
+						break;
+					case "choose" :
+						text = "&#8225;&#8225;";
+						break;
+					default:
+						text = card.num;
+						break;
+				}
+				
+				$('#card').css({'backgroundColor':card.color}).html(text).addClass('active');
+				
+				return true;
+			
+			},1100);
+		
+		});
+		
+		//console.log(deck);
+
+	});
+	
+	function random(from, to){
+		return Math.floor(Math.random() * (to - from + 1) + from);
+	}
+	
+	function pickRandomProperty(obj) {
+		var result;
+		var count = 0;
+		for (var prop in obj)
+		    if (Math.random() < 1/++count)
+		       result = prop;
+		return result;
+	}
+	
+	var objLength = function(obj){
+		var key,len=0;
+		for(key in obj){
+		    len += Number( obj.hasOwnProperty(key) );
+		}
+		return len;
+	};
+	
+	var DELETE=function(obj,prop){
+		obj2=obj
+		obj={}
+		for(i in obj2){
+		    if(i != prop){
+			obj[i]=obj2[i]
+		    }
+		}
+		return obj
+	    };
+	
+</script>
+
+</head>
+
+<body>
+		
+		<div id="card"></div>
+
+
+</body>
+</html>
